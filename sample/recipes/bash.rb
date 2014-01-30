@@ -1,4 +1,4 @@
 bash "change system greeting" do
   user "root"
-  echo Hello OpsWorks World > /etc/motd
+  echo "Hello OpsWorks World" > /etc/motd
 end
