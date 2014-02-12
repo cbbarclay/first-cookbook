@@ -3,7 +3,7 @@ var app = express();
 
 app.get('/', function(req, res) {
     res.setHeader('Content-Type', 'text/plain');
-    res.sendfile('./index.html');
+    res.sendfile('/srv/www/app1/shared/config/app_data.yml');
 });
 
 app.use(express.static('public'));
