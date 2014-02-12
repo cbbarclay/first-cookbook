@@ -2,9 +2,7 @@ var express = require('express');
 var app = express();
 
 app.get('/', function(req, res) {
-    res.setHeader('Content-Type', 'text/plain');
-    res.writeHead(200);
-    res.sendfile('/srv/www/app1/shared/config/app_data.yml');
+    res.sendfile('./index.html');
 });
 
 app.use(express.static('public'));
