@@ -73,7 +73,7 @@ define :opsworks_deploy do
       symlink_before_migrate( deploy[:symlink_before_migrate] )
       action deploy[:action]
 
-      if deploy[:application_type] == 'rails'
+      if deploy[:application_type] == 'other'
         restart_command "sleep #{deploy[:sleep_before_restart]} && #{node[:opsworks][:rails_stack][:restart_command]}"
       end
 
@@ -95,7 +95,7 @@ define :opsworks_deploy do
       before_migrate do
         link_tempfiles_to_current_release
 
-        if deploy[:application_type] == 'rails'
+        if deploy[:application_type] == 'other'
           if deploy[:auto_bundle_on_deploy]
             OpsWorks::RailsConfiguration.bundle(application, node[:deploy][application], release_path)
           end
@@ -153,7 +153,7 @@ define :opsworks_deploy do
     end
   end
 
-  if deploy[:application_type] == 'rails' && node[:opsworks][:instance][:layers].include?('rails-app')
+  if deploy[:application_type] == 'other' && node[:opsworks][:instance][:layers].include?('rails-app')
     case node[:opsworks][:rails_stack][:name]
 
     when 'apache_passenger'
