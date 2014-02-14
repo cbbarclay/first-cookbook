@@ -1,7 +1,5 @@
 include_recipe 'deploy'
 
-set node[:deploy][:railsapp][:rails_env]= 'production'
-set node[:deploy][:railsapp][:document_root]= 'public'
 
 node[:deploy].each do |application, deploy|
 
