@@ -96,9 +96,9 @@ define :my_opsworks_deploy do
         link_tempfiles_to_current_release
 
         if deploy[:application_type] == 'other'
-          if deploy[:auto_bundle_on_deploy]
+#          if deploy[:auto_bundle_on_deploy]
             OpsWorks::RailsConfiguration.bundle(application, node[:deploy][application], release_path)
-          end
+#          end
 
           node.default[:deploy][application][:database][:adapter] = OpsWorks::RailsConfiguration.determine_database_adapter(
             application,
@@ -115,7 +115,8 @@ define :my_opsworks_deploy do
             group node[:deploy][application][:group]
             variables(
               :database => node[:deploy][application][:database],
-              :environment => node[:deploy][application][:rails_env]
+#              :environment => node[:deploy][application][:rails_env]
+              :environment => "production"
             )
           end.run_action(:create)
         elsif deploy[:application_type] == 'php'
