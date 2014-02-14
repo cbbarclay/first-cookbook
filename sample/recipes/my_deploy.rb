@@ -1,5 +1,4 @@
 include_recipe 'deploy'
-include_recipe 'my_opsworks_deploy'
 
 node[:deploy].each do |application, deploy|
 
