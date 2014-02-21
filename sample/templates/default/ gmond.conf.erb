@@ -10,11 +10,9 @@ globals {
   deaf = no
   allow_extra_data = yes
   host_dmax = 90000 /* 25h in secs */
-  host_tmax = 20 /*secs */
   cleanup_threshold = 500 /*secs */
   gexec = no
   send_metadata_interval = 20
-  override_hostname = <%= node[:opsworks][:instance][:hostname] %>
 }
 
 /* If a cluster attribute is specified, then all gmond hosts are wrapped inside
