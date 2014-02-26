@@ -8,8 +8,7 @@ global
   user haproxy
   group haproxy
   <% if node[:haproxy][:stats_socket_level] %>
-  stats socket <%= node[:haproxy][:stats_socket_path] %> level <%= node[:haproxy
-][:stats_socket_level] %>
+  stats socket <%= node[:haproxy][:stats_socket_path] %> level <%= node[:haproxy][:stats_socket_level] %>
   <% else %>
   stats socket <%= node[:haproxy][:stats_socket_path] %>
   <% end %>
@@ -22,38 +21,26 @@ defaults
   retries         <%= node[:haproxy][:retries] %>
   option          redispatch
   maxconn        <%= node[:haproxy][:default_max_connections] %>
-  timeout client <%= node[:haproxy][:client_timeout] %>             # Client and
- server timeout must match the longest
-  timeout server <%= node[:haproxy][:server_timeout] %>             # time we ma
-y wait for a response from the server.
-  timeout queue  <%= node[:haproxy][:queue_timeout] %>              # Don't queu
-e requests too long if saturated.
-  timeout connect <%= node[:haproxy][:connect_timeout] %>           # There's no
- reason to change this one.
-  timeout http-request <%= node[:haproxy][:http_request_timeout] %>     # A comp
-lete request may never take that long.
+  timeout client <%= node[:haproxy][:client_timeout] %>             # Client and server timeout must match the longest
+  timeout server <%= node[:haproxy][:server_timeout] %>             # time we may wait for a response from the server.
+  timeout queue  <%= node[:haproxy][:queue_timeout] %>              # Don't queue requests too long if saturated.
+  timeout connect <%= node[:haproxy][:connect_timeout] %>           # There's no reason to change this one.
+  timeout http-request <%= node[:haproxy][:http_request_timeout] %>     # A complete request may never take that long.
   <% if node[:haproxy][:httpclose] %>
-  option          httpclose                                         # disable ke
-epalive (HAProxy does not yet support the HTTP keep-alive mode)
+  option          httpclose                                         # disable keepalive (HAProxy does not yet support the HTTP keep-alive mode)
   <% end %>
   <% if node[:haproxy][:http_server_close] %>
-  option          http-server-close                                 # enable HTT
-P connection closing on the server side
+  option          http-server-close                                 # enable HTTP connection closing on the server side
   <% end %>
-  option          abortonclose                                      # enable ear
-ly dropping of aborted requests from pending queue
-  option          httpchk                                           # enable HTT
-P protocol to check on servers health
+  option          abortonclose                                      # enable early dropping of aborted requests from pending queue
+  option          httpchk                                           # enable HTTP protocol to check on servers health
   <% if node[:haproxy][:enable_stats] -%>
-  stats auth <%= node[:haproxy][:stats_user] %>:<%= node[:haproxy][:stats_passwo
-rd] %>
+  stats auth <%= node[:haproxy][:stats_user] %>:<%= node[:haproxy][:stats_password] %>
   stats uri <%= node[:haproxy][:stats_url] %>
   <% end -%>
 
 # Set up application listeners here.
-<% if node[:haproxy][:rails_backends].blank? && node[:haproxy][:php_backends].bl
-ank? && node[:haproxy][:nodejs_backends].blank? && node[:haproxy][:static_backen
-ds].blank? -%>
+<% if node[:haproxy][:rails_backends].blank? && node[:haproxy][:php_backends].blank? && node[:haproxy][:nodejs_backends].blank? && node[:haproxy][:static_backends].blank? -%>
 listen application 0.0.0.0:80
   # configure a fake backend as long as there are no real ones
   # this way HAProxy will not fail on a config check
@@ -66,12 +53,9 @@ backend rails_app_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
-  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][
-:health_check_url] %>
+  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
   <% node[:haproxy][:rails_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['back
-ends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_
-rails_app] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_rails_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -82,9 +66,7 @@ backend rails_app_servers_ssl
   option redispatch
   option ssl-hello-chk
   <% node[:haproxy][:rails_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['bac
-kends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor
-_rails_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_rails_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -93,12 +75,9 @@ backend php_app_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
-  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][
-:health_check_url] %>
+  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
   <% node[:haproxy][:php_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['back
-ends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_
-php_app] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_php_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -109,9 +88,7 @@ backend php_app_servers_ssl
   option redispatch
   option ssl-hello-chk
   <% node[:haproxy][:php_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['bac
-kends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor
-_php_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_php_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -120,12 +97,9 @@ backend nodejs_app_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
-  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][
-:health_check_url] %>
+  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['back
-ends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_
-nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -136,9 +110,7 @@ backend nodejs_app_servers_ssl
   option redispatch
   option ssl-hello-chk
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['bac
-kends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor
-_nodejs_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -147,12 +119,9 @@ backend static_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
-  option httpchk GET <%= node[:haproxy][:health_check_url] %> # Nginx doesn't un
-derstand OPTIONS
+  option httpchk GET <%= node[:haproxy][:health_check_url] %> # Nginx doesn't understand OPTIONS
   <% node[:haproxy][:static_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['back
-ends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_
-static] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_static] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -163,38 +132,29 @@ backend static_servers_ssl
   option redispatch
   option ssl-hello-chk
   <% node[:haproxy][:static_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['bac
-kends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor
-_static_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_static_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
-<% if node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:insta
-nces].keys.empty? -%>
+<% if node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:instances].keys.empty? -%>
 backend java_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
-  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][
-:health_check_url] %>
-  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings|
- -%>
-  server <%= hostname %> <%= settings[:private_ip] %>:80 weight 10 maxconn 200 c
-heck inter <%= node[:haproxy][:check_interval] %>
+  option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
+  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
+  server <%= hostname %> <%= settings[:private_ip] %>:80 weight 10 maxconn 200 check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
-<% if node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:insta
-nces].keys.empty? -%>
+<% if node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:instances].keys.empty? -%>
 backend java_servers_ssl
   mode tcp
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option ssl-hello-chk
-  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings|
- -%>
-  server <%= hostname %> <%= settings[:private_ip] %>:443 weight 10 maxconn 200
-check inter <%= node[:haproxy][:check_interval] %>
+  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
+  server <%= hostname %> <%= settings[:private_ip] %>:443 weight 10 maxconn 200 check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
 
@@ -204,11 +164,9 @@ frontend http-in
   # all domains of Rails applications
   <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
-  acl rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
-%> hdr_end(host) -i <%= domain %>
+  acl rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> hdr_end(host) -i <%= domain %>
       <% if app_config['mounted_at'] -%>
-  acl rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
-%>_path path_beg <%= app_config['mounted_at'] %>
+  acl rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= app_config['mounted_at'] %>
       <% end -%>
     <% end -%>
   <% end -%>
@@ -216,11 +174,9 @@ frontend http-in
   # all domains of PHP applications
   <% node[:haproxy][:php_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
-  acl php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
- hdr_end(host) -i <%= domain %>
+  acl php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> hdr_end(host) -i <%= domain %>
       <% if app_config['mounted_at'] -%>
-  acl php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
-_path path_beg <%= app_config['mounted_at'] %>
+  acl php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= app_config['mounted_at'] %>
       <% end -%>
     <% end -%>
   <% end -%>
@@ -228,11 +184,9 @@ _path path_beg <%= app_config['mounted_at'] %>
   # all domains of node.js applications
   <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
-  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
- %> hdr_end(host) -i <%= domain %>
+  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> hdr_end(host) -i <%= domain %>
       <% if app_config['mounted_at'] -%>
-  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
- %>_path path_beg <%= app_config['mounted_at'] %>
+  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= app_config['mounted_at'] %>
       <% end -%>
     <% end -%>
   <% end -%>
@@ -240,75 +194,57 @@ _path path_beg <%= app_config['mounted_at'] %>
   # all domains of static applications
   <% node[:haproxy][:static_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
-  acl static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
- %> hdr_end(host) -i <%= domain %>
+  acl static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> hdr_end(host) -i <%= domain %>
       <% if app_config['mounted_at'] -%>
-  acl static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_')
- %>_path path_beg <%= app_config['mounted_at'] %>
+  acl static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= app_config['mounted_at'] %>
       <% end -%>
     <% end -%>
   <% end -%>
 
   # choose backend
-  <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:stati
-c_backends].empty? -%>
+  <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:static_backends].empty? -%>
     <% node[:haproxy][:static_applications].each do |app_name, app_config| -%>
       <% app_config['domains'].each do |domain| -%>
         <% if app_config['mounted_at'] -%>
-  use_backend static_servers if static_application_<%= app_name %>_domain_<%= do
-main.gsub(/[^\w.:-]/, '_') %> static_application_<%= app_name %>_domain_<%= doma
-in %>_path
+  use_backend static_servers if static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> static_application_<%= app_name %>_domain_<%= domain %>_path
         <% else -%>
-  use_backend static_servers if static_application_<%= app_name %>_domain_<%= do
-main.gsub(/[^\w.:-]/, '_') %>
+  use_backend static_servers if static_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
         <% end -%>
       <% end -%>
     <% end -%>
   <% end -%>
 
-  <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodej
-s_backends].empty? -%>
+  <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodejs_backends].empty? -%>
     <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
       <% app_config['domains'].each do |domain| -%>
         <% if app_config['mounted_at'] -%>
-  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%
-= domain.gsub(/[^\w.:-]/, '_') %> nodejs_application_<%= app_name %>_domain_<%=
-domain %>_path
+  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> nodejs_application_<%= app_name %>_domain_<%= domain %>_path
         <% else -%>
-  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%
-= domain.gsub(/[^\w.:-]/, '_') %>
+  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
         <% end -%>
       <% end -%>
     <% end -%>
   <% end -%>
 
-  <% unless node[:haproxy][:php_applications].empty? || node[:haproxy][:php_back
-ends].empty? -%>
+  <% unless node[:haproxy][:php_applications].empty? || node[:haproxy][:php_backends].empty? -%>
     <% node[:haproxy][:php_applications].each do |app_name, app_config| -%>
       <% app_config['domains'].each do |domain| -%>
         <% if app_config['mounted_at'] -%>
-  use_backend php_app_servers if php_application_<%= app_name %>_domain_<%= doma
-in.gsub(/[^\w.:-]/, '_') %> php_application_<%= app_name %>_domain_<%= domain %>
-_path
+  use_backend php_app_servers if php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> php_application_<%= app_name %>_domain_<%= domain %>_path
         <% else -%>
-  use_backend php_app_servers if php_application_<%= app_name %>_domain_<%= doma
-in.gsub(/[^\w.:-]/, '_') %>
+  use_backend php_app_servers if php_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
         <% end -%>
       <% end -%>
     <% end -%>
   <% end -%>
 
-  <% unless node[:haproxy][:rails_applications].empty? || node[:haproxy][:rails_
-backends].empty? -%>
+  <% unless node[:haproxy][:rails_applications].empty? || node[:haproxy][:rails_backends].empty? -%>
     <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
       <% app_config['domains'].each do |domain| -%>
         <% if app_config['mounted_at'] -%>
-  use_backend rails_app_servers if rails_application_<%= app_name %>_domain_<%=
-domain.gsub(/[^\w.:-]/, '_') %> rails_application_<%= app_name %>_domain_<%= dom
-ain %>_path
+  use_backend rails_app_servers if rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> rails_application_<%= app_name %>_domain_<%= domain %>_path
         <% else -%>
-  use_backend rails_app_servers if rails_application_<%= app_name %>_domain_<%=
-domain.gsub(/[^\w.:-]/, '_') %>
+  use_backend rails_app_servers if rails_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
         <% end -%>
       <% end -%>
     <% end -%>
@@ -322,8 +258,7 @@ domain.gsub(/[^\w.:-]/, '_') %>
   default_backend nodejs_app_servers
   <% elsif !node[:haproxy][:static_backends].empty? -%>
   default_backend static_servers
-  <% elsif node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:
-instances].empty? -%>
+  <% elsif node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:instances].empty? -%>
   default_backend java_servers
   <% end -%>
 
@@ -359,20 +294,16 @@ frontend https-in
     <% end -%>
   <% end -%>
 
-  <% unless node[:haproxy][:rails_applications].empty? || node[:haproxy][:rails_
-backends].empty? -%>
+  <% unless node[:haproxy][:rails_applications].empty? || node[:haproxy][:rails_backends].empty? -%>
   use_backend rails_app_servers_ssl if rails_applications_ssl
   <% end -%>
-  <% unless node[:haproxy][:php_applications].empty? || node[:haproxy][:php_back
-ends].empty? -%>
+  <% unless node[:haproxy][:php_applications].empty? || node[:haproxy][:php_backends].empty? -%>
   use_backend php_app_servers_ssl if php_applications_ssl
   <% end -%>
-  <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodej
-s_backends].empty? -%>
+  <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodejs_backends].empty? -%>
   use_backend nodejs_app_servers_ssl if nodejs_applications_ssl
   <% end -%>
-  <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:stati
-c_backends].empty? -%>
+  <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:static_backends].empty? -%>
   use_backend static_servers_ssl if static_applications_ssl
   <% end -%>
 
@@ -384,8 +315,7 @@ c_backends].empty? -%>
   default_backend nodejs_app_servers_ssl
   <% elsif !node[:haproxy][:static_backends].empty? -%>
   default_backend static_servers_ssl
-  <% elsif node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:
-instances].empty? -%>
+  <% elsif node[:opsworks][:layers][:java] && !node[:opsworks][:layers][:java][:instances].empty? -%>
   default_backend java_servers_ssl
   <% end -%>
 
