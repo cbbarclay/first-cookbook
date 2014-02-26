@@ -142,7 +142,7 @@ backend java_servers
   option redispatch
   option forwardfor
   option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
-  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
+  <% node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
   server <%= hostname %> <%= settings[:private_ip] %>:80 weight 10 maxconn 200 check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
@@ -153,7 +153,7 @@ backend java_servers_ssl
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option ssl-hello-chk
-  <% if node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
+  <% node[:opsworks][:layers][:java][:instances].each do |hostname, settings| -%>
   server <%= hostname %> <%= settings[:private_ip] %>:443 weight 10 maxconn 200 check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 <% end -%>
