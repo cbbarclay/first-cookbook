@@ -1,16 +1,10 @@
-execute "install" do
+package "python-pip" do
+    action :install
+end 
 
-  if platform?('ubuntu')
-    command "sudo apt-get install python-pip"
-    command "sudo pip install --upgrade https://s3.amazonaws.com/cf8427e/awscli-1.3.0.tar.gz"
-    command "sudo pip install --upgrade https://s3.amazonaws.com/cf8427e/botocore-0.34.0.tar.gz"
-  end
-  
-  if platform?('amazon')
-    command "sudo yum install python-pip"
-    command "sudo pip install --upgrade https://s3.amazonaws.com/cf8427e/awscli-1.3.0.tar.gz"
-    command "sudo pip install --upgrade https://s3.amazonaws.com/cf8427e/botocore-0.34.0.tar.gz"
-  end
+execute "install" do
+  command "pip install --upgrade https://s3.amazonaws.com/cf8427e/awscli-1.3.0.tar.gz"
+  command "pip install --upgrade https://s3.amazonaws.com/cf8427e/botocore-0.34.0.tar.gz"
 
   action :run
 end
