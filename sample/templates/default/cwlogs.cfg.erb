@@ -1,0 +1,37 @@
+[general]
+# Path to the AWSLogs agent's state file. Agent uses this file to maintain
+# client side state across its executions.
+state_file = /tmp/watchstate
+
+
+## Each log file is defined in its own section. The section name doesn't
+## matter as long as its unique within this file.
+#
+#[kern.log]
+#
+## Path of log file for the agent to monitor and upload.
+#
+#file = /var/log/kern.log
+#
+## Name of the destination log group.
+#
+#log_group_name = kern.log
+#
+## Name of the destination log stream.
+#
+#log_stream_name = ::hostname::
+#
+## Format specifier for timestamp parsing.
+#
+#datetime_format = %b %d %H:%M:%S
+#
+## Push delay between each PutLogEvents in millisecionds.
+#
+#push_delay = 5000
+#
+
+[<%= node[:cfnlogs][:loggroupname] %>]
+datetime_format = %b %d %H:%M:%S
+log_group_name = <%= node[:cfnlogs][:loggroupname] %>
+file = <%= node[:cfnlogs][:logfile] %>
+log_stream_name = <%= node[:cfnlogs][:logstream] %>
