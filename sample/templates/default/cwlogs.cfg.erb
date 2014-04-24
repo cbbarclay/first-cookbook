@@ -30,8 +30,8 @@ state_file = /tmp/watchstate
 #push_delay = 5000
 #
 
-[<%= node[:cfnlogs][:loggroupname] %>]
+[<%= node[:opsworks][:stack][:name] %>]
 datetime_format = %b %d %H:%M:%S
-log_group_name = <%= node[:cfnlogs][:loggroupname] %>
+log_group_name = <%= node[:opsworks][:stack][:name] %>
 file = <%= node[:cfnlogs][:logfile] %>
-log_stream_name = <%= node[:cfnlogs][:logstream] %>
+log_stream_name = <%= node[:opsworks][:instance][:hostname] %>
