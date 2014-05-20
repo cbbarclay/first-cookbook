@@ -1,3 +1,1 @@
-default[:cfnlogs][:loggroupname] = 'kern.log'
-default[:cfnlogs][:logfile] = '/var/log/kern.log'
-default[:cfnlogs][:logstream] = '::hostname::'
+default[:cwlogs][:logfile] = '/var/log/aws/opsworks/opsworks-agent.log'
