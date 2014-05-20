@@ -33,5 +33,5 @@ state_file = /tmp/watchstate
 [<%= node[:opsworks][:stack][:name] %>]
 datetime_format = %b %d %H:%M:%S
 log_group_name = <%= node[:opsworks][:stack][:name] %>
-file = <%= node[:cfnlogs][:logfile] %>
+file = <%= node[:cwlogs][:logfile] %>
 log_stream_name = <%= node[:opsworks][:instance][:hostname] %>
