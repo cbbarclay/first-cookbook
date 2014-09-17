@@ -20,7 +20,7 @@ node[:deploy].each do |application, deploy|
     user "root"
     cwd ::File.dirname(current_dir)
     code <<-EOH
-     docker build -t=#{deploy[:application]} .
+     docker build -t=#{deploy[:application]} . > #{deploy[:application]}-docker.out
     EOH
   end
 
