@@ -21,6 +21,7 @@ node[:deploy].each do |application, deploy|
     cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
      docker build -t=#{deploy[:application]} . > #{deploy[:application]}-docker.out
+     docker run -p #{node[:opsworks][:instance][:private_ip]}:80:80 -d #{deploy[:application]}
     EOH
   end
 
