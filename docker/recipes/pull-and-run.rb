@@ -1,3 +1,9 @@
+include_recipe 'deploy'
+
+docker build -t="image-id" .
+docker run -p node[:opsworks][:instance][:ip]:80:80 -d image-id
+
+
 node[:my_apps].each do |name, image|  
   script "pull_app_#{name}_image" do
     interpreter "bash"
