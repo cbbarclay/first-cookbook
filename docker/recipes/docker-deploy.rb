@@ -13,4 +13,15 @@ node[:deploy].each do |application, deploy|
     deploy_data deploy
     app application
   end
+
+  current_dir = ::File.join(deploy[:deploy_to], 'current')
+
+  bash "docker-build" do
+    user "root"
+    cwd ::File.dirname(current_dir)
+    code <<-EOH
+     docker build -t="meme" .
+    EOH
+  end
+
 end
