@@ -14,11 +14,11 @@ node[:deploy].each do |application, deploy|
     app application
   end
 
-  current_dir = ::File.join(deploy[:deploy_to], 'current')
+#current_dir = ::File.join(deploy[:deploy_to], 'current')
 
   bash "docker-build" do
     user "root"
-    cwd ::File.dirname(current_dir)
+    cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
      docker build -t=#{deploy[:application]} . > #{deploy[:application]}-docker.out
     EOH
