@@ -21,7 +21,14 @@ node[:deploy].each do |application, deploy|
     cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
      docker build -t=#{deploy[:application]} . > #{deploy[:application]}-docker.out
-     docker run -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} -d #{deploy[:application]}
+    EOH
+  end
+  
+  bash "docker-run" do
+    user "root"
+    cwd "#{deploy[:deploy_to]}/current"
+    code <<-EOH
+     docker run -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
     EOH
   end
 
