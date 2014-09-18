@@ -2,6 +2,11 @@ include_recipe 'deploy'
 
 
 node[:deploy].each do |application, deploy|
+  
+  if node[:opsworks][:instance][:layers].first != deploy[:environment_variables][:layer]
+    Chef::Log.debug("Skipping deploy::php application #{application} as it is not an PHP app")
+    next
+  end
 
   opsworks_deploy_dir do
     user deploy[:user]
@@ -14,7 +19,20 @@ node[:deploy].each do |application, deploy|
     app application
   end
 
-#need to grep for existing images and docker rmi imagename + docker stop name
+  bash "docker-cleanup" do
+    user "root"
+    code <<-EOH
+      if docker ps | grep #{deploy[:application]}; 
+      then
+        docker stop #{deploy[:application]}
+        docker rm #{deploy[:application]}
+      fi
+      if docker images | grep #{deploy[:application]}; 
+      then
+        docker rmi #{deploy[:application]}
+      fi
+    EOH
+  end
 
   bash "docker-build" do
     user "root"
@@ -28,11 +46,6 @@ node[:deploy].each do |application, deploy|
     user "root"
     cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
-      if docker ps | grep #{deploy[:application]}; 
-      then
-        docker stop #{deploy[:application]}
-        docker rm #{deploy[:application]}
-      fi
       docker run -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
     EOH
   end
