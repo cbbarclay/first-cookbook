@@ -35,7 +35,6 @@ node[:deploy].each do |application, deploy|
       fi
       docker run -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
     EOH
-    not_if "docker ps | grep #{deploy[:application]}"
   end
 
 end
