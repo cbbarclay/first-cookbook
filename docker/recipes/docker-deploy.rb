@@ -1,6 +1,5 @@
 include_recipe 'deploy'
 
-
 node[:deploy].each do |application, deploy|
   
   if node[:opsworks][:instance][:layers].first != deploy[:environment_variables][:layer]
@@ -43,11 +42,16 @@ node[:deploy].each do |application, deploy|
     EOH
   end
   
+  dockerenvs = " "
+  deploy[:environment_variables].each do |key, value|
+    dockerenvs=dockerenvs+" -e "+key+"="+value
+  end
+  
   bash "docker-run" do
     user "root"
     cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
-      docker run -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
+      docker run -p #{dockerenvs} #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
     EOH
   end
 
