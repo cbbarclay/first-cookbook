@@ -16,6 +16,19 @@ node[:deploy].each do |application, deploy|
 
 #need to grep for existing images and docker rmi imagename + docker stop name
 
+  script "kill_all_containers" do  
+    interpreter "ruby"
+    user "root"
+    code <<-EOH
+      `docker ps -q`.split("n").each do |container_id|
+        `docker stop #{container_id}`
+      end
+      `docker ps -a -q`.split("n").each do |container_id|
+        `docker rm #{container_id}`
+      end
+    EOH
+  end
+
   bash "docker-build" do
     user "root"
     cwd "#{deploy[:deploy_to]}/current"
